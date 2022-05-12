@@ -1,4 +1,4 @@
 SRC		:= accesscmd.c \
 execcmd.c \
-paths.c \
+get_directories.c \
 pipex.c \

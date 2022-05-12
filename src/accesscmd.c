@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/04/26 11:41:46 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/10 16:35:52 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/05/12 17:11:39 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "../incl/ft_printf/src/ft_printf.h"
 #include <unistd.h>
 
-char	*cmd_path(char **paths, char **cmd)
+char	*cmd_path(char **paths, char *cmd)
 {
 	int		cnt;
 	char	*cmdpath;
@@ -23,16 +23,11 @@ char	*cmd_path(char **paths, char **cmd)
 	cnt = 0;
 	while (paths[cnt])
 	{
-		cmdpath = ft_strjoin(paths[cnt], cmd[0]);
-		ft_printf("cmd_path: %s\n", cmdpath);
+		cmdpath = ft_strjoin(paths[cnt], cmd);
 		if (!access(cmdpath, X_OK))
-		{
-			ft_printf("%s is accesable\n", cmdpath);
 			return (cmdpath);
-		}
 		free(cmdpath);
 		cnt++;
 	}
-	ft_printf("%s is not accessable\n", cmd[0]);
 	return (NULL);
 }

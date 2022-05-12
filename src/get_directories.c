@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   paths.c                                            :+:    :+:            */
+/*   dirs.c                                            :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
@@ -27,24 +27,11 @@ void	free_twod(char **twod)
 	free(twod);
 }
 
-void	free_threed(char ***threed)
-{
-	int	cnt;
-
-	cnt = 0;
-	while (threed[cnt] != NULL)
-	{
-		free_twod(threed[cnt]);
-		cnt++;
-	}
-	free(threed);
-}
-
-char	**get_paths(char **env)
+char	**get_dirs(char **env)
 {
 	int		cnt;
 	char	*tmp;
-	char	**paths;
+	char	**dirs;
 
 	cnt = 0;
 	while (env[cnt] != NULL)
@@ -54,15 +41,15 @@ char	**get_paths(char **env)
 		cnt++;
 	}
 	tmp = ft_strdup(&(env[cnt][5]));
-	paths = ft_split(tmp, ':');
+	dirs = ft_split(tmp, ':');
 	free(tmp);
 	cnt = 0;
-	while (paths[cnt])
+	while (dirs[cnt])
 	{
-		tmp = ft_strjoin(paths[cnt], "/");
-		free(paths[cnt]);
-		paths[cnt] = tmp;
+		tmp = ft_strjoin(dirs[cnt], "/");
+		free(dirs[cnt]);
+		dirs[cnt] = tmp;
 		cnt++;
 	}
-	return (paths);
+	return (dirs);
 }

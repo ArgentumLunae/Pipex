@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/04/15 17:18:37 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/10 19:06:23 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/05/12 19:46:55 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,43 +17,82 @@
 #include "../incl/ft_printf/src/ft_printf.h"
 #include <stdio.h>
 
-void	execcmd(t_args *args, char **env)
+void	cleanup(char *path, char **cmd, int fdio[2])
 {
-	int	p[2];
-	char buff[500];
+	close(fdio[0]);
+	close(fdio[1]);
+	free(path);
+	free_twod(cmd);
+}
 
-	if (pipe(p) < 0)
+void	next_pipe(int p1[2], int p2[2])
+{
+	close(p1[0]);
+	close(p1[1]);
+	p1[0] = p2[0];
+	p1[1] = p2 [1];
+	if (pipe(p2) < 0)
+		perror("pipe failure");
+}
+
+bool	exec_cmd(char **dirs, char *argv, char *env[], int fdio[2])
+{
+	char	*path;
+	char	**cmd;
+	pid_t	spork;
+
+	cmd = ft_split(argv, ' ');
+	path = cmd_path(dirs, cmd[0]);
+	spork = fork();
+	if (spork == 0)
 	{
-		perror("pipe failure.\n");
-		exit(EXIT_FAILURE);
+		if (dup2(fdio[0], STDIN_FILENO) < 0)
+			return (false);
+		if (dup2(fdio[1], STDOUT_FILENO) < 0)
+			return (false);
+		execve(path, cmd, env);
 	}
-	if (fork() == 0)
-	{
-		dup2(p[1], STDOUT_FILENO);
-		dup2(args->fdio[0], STDIN_FILENO);
-		if (execve(args->paths[0], args->cmds[0], env))
-		{
-			perror("execution is fucked");
-			exit(EXIT_FAILURE);
-		}
-	}
-	else if (fork() == 0)
-	{
-		dup2(p[0], STDIN_FILENO);
-		dup2(args->fdio[1], STDOUT_FILENO);
-		ft_bzero(buff, 500);
-		read(STDIN_FILENO, buff, 499);
-		ft_printf("%s\n", buff);
-		ft_printf("execcmd: %s\n", args->paths[0]);
-		ft_printf("execcmd: %s %s %s\n", args->cmds[0][0], args->cmds[0][1], args->cmds[0][2]);
-		if (execve(args->paths[0], args->cmds[0], env))
-		{
-			perror("execution is fucked");
-			exit(EXIT_FAILURE);
-		}
-	}
+	else if (spork < 0)
+		return (false);
 	else
-		while (wait(NULL) == 0)
-			;
-	ft_printf("I'm done waiting on this shit\n");
+		cleanup(path, cmd, fdio);
+	return (true);
+}
+
+void	setup_exec(char **dirs, int argc, char *argv[], char *env[])
+{
+	int		p1[2];
+	int		p2[2];
+	int		fd;
+	int		cnt;
+	bool	app;
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd < 0)
+		perror("fd failure.");
+	if (pipe(p2) < 0)
+		perror("pipe failure.\n");
+	cnt = 2;
+	if (!exec_cmd(dirs, argv[cnt], env, (int [2]){fd, p2[1]}))
+		perror("fork failure");
+	close(fd);
+	cnt++;
+	app = false;
+	if (!ft_strncmp(argv[argc - 2], "-a", 3))
+		app = true;
+	while (cnt < (argc - (2 + app)))
+	{
+		next_pipe(p1, p2);
+		if (!exec_cmd(dirs, argv[cnt], env, (int [2]){p1[0], p2[1]}))
+			perror("fork failure");
+		cnt++;
+	}
+	if (app == false)
+		fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+	else
+		fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, S_IRWXU);
+	if (fd < 0)
+		perror("fd failure");
+	if (!exec_cmd(dirs, argv[cnt], env, (int []){p2[0], fd}))
+		perror("fork failure");
 }
