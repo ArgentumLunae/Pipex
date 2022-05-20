@@ -1,4 +1,4 @@
-SRC		:= accesscmd.c \
-execcmd.c \
-get_directories.c \
+SRC		:= execcmd.c \
+openio.c \
 pipex.c \
+utils.c \

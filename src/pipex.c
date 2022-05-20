@@ -6,47 +6,61 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/18 11:26:15 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/12 17:48:15 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/05/20 14:17:40 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <sys/errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include "../incl/libft/libft.h"
-#include "../incl/ft_printf/src/ft_printf.h"
 #include "../hdr/pipex.h"
-#include <stdio.h>
+#include "../incl/ft_printf/src/ft_printf.h"
+#include <unistd.h>
 
-char	***lst_cmds(int argc, char *argv[])
+void	slash_dirs(char ***dirs)
 {
 	int		cnt;
-	char	***ret;
+	char	*tmp;
 
 	cnt = 0;
-	ret = malloc((argc - 3) * sizeof(char **));
-	if (!ret)
-		return (NULL);
-	while (cnt < argc - 3)
+	while ((*dirs)[cnt])
 	{
-		ret[cnt] = ft_split(argv[cnt + 2], ' ');
-		if (!ret[cnt])
-			return (NULL);
+		tmp = ft_strjoin((*dirs)[cnt], "/");
+		free((*dirs)[cnt]);
+		(*dirs)[cnt] = tmp;
 		cnt++;
 	}
-	ret[cnt] = NULL;
-	return (ret);
+}
+
+char	**get_dirs(char **env)
+{
+	int		cnt;
+	char	*tmp;
+	char	**dirs;
+
+	cnt = 0;
+	while (env[cnt] != NULL)
+	{
+		if (ft_strnstr(env[cnt], "PATH=", 5))
+			break ;
+		cnt++;
+	}
+	if (env[cnt] == NULL)
+		return (NULL);
+	tmp = ft_strdup(&(env[cnt][5]));
+	dirs = ft_split(tmp, ':');
+	if (dirs == NULL)
+		return (NULL);
+	free(tmp);
+	cnt = 0;
+	slash_dirs(&dirs);
+	return (dirs);
 }
 
 int	main(int argc, char **argv, char **env)
 {
 	char	**dirs;
 
-	close(19);
 	if (argc < 5 && argv)
 	{
-		perror("Incorrect number of arguments. (5 arguments required)");
+		ft_printf("Usage: ./pipex filepath cmd cmd filepath.\n");
 		exit(EXIT_FAILURE);
 	}
 	dirs = get_dirs(env);

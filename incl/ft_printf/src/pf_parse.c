@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/01/15 12:27:19 by mteerlin      #+#    #+#                 */
-/*   Updated: 2021/03/02 16:00:02 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/05/15 14:19:33 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,9 +80,9 @@ static int	parse_conversion(const char **format, t_mods *mods, va_list args)
 	else if (**format == 'c')
 		return (pf_character(va_arg(args, int), mods));
 	else if (**format == 's')
-		return (pf_string(va_arg(args, char*), mods));
+		return (pf_string(va_arg(args, char *), mods));
 	else if (**format == 'p')
-		return (pf_pointer(va_arg(args, void*), mods));
+		return (pf_pointer(va_arg(args, void *), mods));
 	else if (**format == 'u')
 		return (pf_usign_base(va_arg(args, unsigned int), 10, mods, **format));
 	else if (**format == 'x' || **format == 'X')

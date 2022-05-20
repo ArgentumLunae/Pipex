@@ -6,7 +6,7 @@
 #    By: mteerlin <mteerlin@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/01/18 13:34:08 by mteerlin      #+#    #+#                  #
-#    Updated: 2022/03/24 15:46:24 by mteerlin      ########   odam.nl          #
+#    Updated: 2022/05/15 16:07:31 by mteerlin      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,25 +33,24 @@ LIBFT		= $(LIBFT_DIR)libft.a
 all: 		$(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
-			cp $(LIBFT) $(NAME)
-			$(AR) $(NAME) $(OBJ)
+			@cp $(LIBFT) $(NAME)
+			@$(AR) $(NAME) $(OBJ)
 
 $(LIBFT):
-			$(MAKE) -C $(LIBFT_DIR) bonus
+			@$(MAKE) -C $(LIBFT_DIR) bonus
 
 %.o: %.c $(HDR_DIR)$(HDR)
-			$(CC) $(CFLAGS) -c -o $@ $<
+			@$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-			rm -f $(OBJ)
+			@rm -f $(OBJ) $(LIBFT_DIR)*.o
 
 fclean:
-			$(MAKE) clean
-			$(MAKE) -C $(LIBFT_DIR) fclean
-			rm -f $(NAME)
+			@$(MAKE) clean
+			@rm -f $(NAME)
 
 re:
-			$(MAKE) fclean
-			$(MAKE) all
+			@$(MAKE) fclean
+			@$(MAKE) all
 
 .PHONY:		all clean fclean re
