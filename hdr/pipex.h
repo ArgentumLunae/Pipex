@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/18 12:23:55 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/15 16:54:54 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/05/26 15:15:37 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,15 @@
 # include <stdlib.h>
 
 void	free_twod(char **twod);
+char	**get_dirs(char **env);
 
-bool	check_append(int argc, char *argv[]);
-void	cleanup(char *path, char **cmd, int fdio[2]);
+bool	check_heredoc(char *argv);
+void	cleanup(int fdio[2]);
 void	next_pipe(int p1[2], int p2[2]);
 
 int		open_infile(char *argv[]);
-int		open_outfile(int argc, char *argv[], bool app);
+int		open_outfile(int argc, char *argv[]);
 
-void	setup_exec(char **dirs, int argc, char *argv[], char *env[]);
+void	setup_exec(int argc, char *argv[], char *env[]);
 
 #endif
