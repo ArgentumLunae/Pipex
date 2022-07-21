@@ -6,12 +6,13 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/05/26 15:10:06 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/26 15:10:50 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/14 11:35:48 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../incl/libft/libft.h"
 #include <stdlib.h>
+#include <unistd.h>
 
 void	slash_dirs(char ***dirs)
 {
@@ -51,4 +52,23 @@ char	**get_dirs(char **env)
 	cnt = 0;
 	slash_dirs(&dirs);
 	return (dirs);
+}
+
+char	*cmd_path(char **paths, char **cmd)
+{
+	int		cnt;
+	char	*cmdpath;
+
+	cnt = 0;
+	if (paths == NULL || cmd == NULL)
+		return (NULL);
+	while (paths[cnt])
+	{
+		cmdpath = ft_strjoin(paths[cnt], cmd[0]);
+		if (!access(cmdpath, X_OK))
+			return (cmdpath);
+		free(cmdpath);
+		cnt++;
+	}
+	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/05/15 14:15:33 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/26 15:07:26 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/01 15:13:15 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,6 @@ void	cleanup(int fdio[2])
 		close(fdio[0]);
 		close(fdio[1]);
 	}
-	// if (path != NULL)
-	// 	free(path);
-	// if (cmd != NULL)
-	// 	free_twod(cmd);
 }
 
 void	next_pipe(int p1[2], int p2[2])

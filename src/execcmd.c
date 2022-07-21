@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/04/15 17:18:37 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/05/26 18:06:57 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/21 12:54:01 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,78 +14,99 @@
 #include "../incl/ft_printf/src/ft_printf.h"
 #include <unistd.h>
 
-char	*cmd_path(char **paths, char **cmd)
+void	child(char *argv, int pin[2], int pout[2])
 {
-	int		cnt;
-	char	*cmdpath;
+	extern char	**environ;
+	char		**dirs;
+	char		**cmd;
+	char		*path;
 
-	cnt = 0;
-	if (paths == NULL || cmd == NULL)
-		exit(EXIT_FAILURE);
-	while (paths[cnt])
+	dirs = get_dirs(environ);
+	cmd = ft_split(argv, ' ');
+	path = cmd_path(dirs, cmd);
+	if (path == NULL)
 	{
-		cmdpath = ft_strjoin(paths[cnt], cmd[0]);
-		if (!access(cmdpath, X_OK))
-			return (cmdpath);
-		free(cmdpath);
-		cnt++;
+		if (cmd == NULL)
+			write(2, "(null)", 6);
+		else
+			write(2, cmd[0], ft_strlen(cmd[0]));
+		write(2, ": command not found\n", 20);
+		exit(EXIT_FAILURE);
 	}
-	return (NULL);
+	if (dup2(pin[0], STDIN_FILENO) < 0 || dup2(pout[1], STDOUT_FILENO) < 0)
+		perror(NULL);
+	if (execve(path, cmd, environ))
+		perror(NULL);
 }
 
-void	exec_cmd(char *argv, char *env[], int fdio[2])
+void	fork_first(char *infile, char *argv, int pout[2])
 {
-	pid_t	spork;
-	char	**dirs;
-	char	**cmd;
-	char	*path;
+	pid_t		spork;
+	int			fd;
 
 	spork = fork();
 	if (spork == 0)
 	{
-		dirs = get_dirs(env);
-		cmd = ft_split(argv, ' ');
-		path = cmd_path(dirs, cmd);
-		if (path == NULL)
-		{
-			ft_printf("%s: command not found\n", cmd[0]);
+		fd = open_infile(infile);
+		if (fd >= 0)
+			child(argv, (int [2]){fd, -1}, pout);
+		else
 			exit(EXIT_FAILURE);
-		}
-		if (dup2(fdio[0], STDIN_FILENO) < 0 || dup2(fdio[1], STDOUT_FILENO) < 0)
-			perror("dup2 error");
-		if (execve(path, cmd, env))
-			perror(NULL);
 	}
 	else if (spork < 0)
-		perror("fork error");
+		perror(NULL);
 	else
-		cleanup(fdio);
+		close(pout[1]);
 }
 
-void	setup_exec(int argc, char *argv[], char *env[])
+void	fork_middle(char *argv, int pin[2], int pout[2])
+{
+	pid_t	spork;
+
+	spork = fork();
+	if (spork == 0)
+		child(argv, pin, pout);
+	else if (spork < 0)
+		perror(NULL);
+	else
+		cleanup((int [2]){pin[0], pout[1]});
+}
+
+void	fork_last(char *outfile, char *argv, int pin[2])
+{
+	pid_t	spork;
+	int		fd;
+
+	spork = fork();
+	if (spork == 0)
+	{
+		fd = open_outfile(outfile);
+		if (fd >= 0)
+			child(argv, pin, (int [2]){-1, fd});
+		else
+			exit(EXIT_FAILURE);
+	}
+	else if (spork < 0)
+		perror(NULL);
+	else
+		close(pin[0]);
+}
+
+void	setup_exec(int argc, char *argv[])
 {
 	int		p1[2];
 	int		p2[2];
-	int		fd;
 	int		cnt;
 
 	if (pipe(p2))
 		perror("pipe error");
-	fd = open_infile(argv);
-	if (fd >= 0)
-		exec_cmd(argv[2], env, (int [2]){fd, p2[1]});
-	else
-		close(p2[1]);
+	fork_first(argv[1], argv[2], p2);
 	cnt = 3;
 	while (cnt < (argc - (2)))
 	{
 		next_pipe(p1, p2);
-		exec_cmd(argv[cnt], env, (int [2]){p1[0], p2[1]});
+		fork_middle(argv[cnt], p1, p2);
 		cnt++;
 	}
-	fd = open_outfile(argc, argv);
-	if (fd >= 0)
-		exec_cmd(argv[cnt], env, (int [2]){p2[0], fd});
-	else
-		close(p2[0]);
+	fork_last(argv[argc - 1], argv[cnt], p2);
 }
