@@ -6,7 +6,7 @@
 #    By: mteerlin <mteerlin@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/07/21 12:25:06 by mteerlin      #+#    #+#                  #
-#    Updated: 2022/07/14 13:08:08 by mteerlin      ########   odam.nl          #
+#    Updated: 2022/07/21 14:30:06 by mteerlin      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,24 +25,20 @@ OBJ		:= $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 LIBFT_DIR := $(INCL_DIR)libft/
 LIBFT := $(LIBFT_DIR)libft.a
 
-FTPRINTF_DIR := $(INCL_DIR)ft_printf/
-FTPRINTF	:= $(FTPRINTF_DIR)libftprintf.a
-
 AR		?= ar rcs;
 SANFLAGS ?= -fsanitize=address -g
 CFLAGS	?= -Wall -Wextra -Werror
 
 all: 		$(NAME)
 
-$(NAME):	$(FTPRINTF) $(OBJ)
+$(NAME):	$(LIBFT) $(OBJ)
 			@echo "Compiling pipex."
-			@$(CC) $(CFLAGS) $(FTPRINTF) $(OBJ) -o $(NAME)
-#			@$(CC) $(CFLAGS) -L$(LIBFT_DIR) $(OBJ) -lft -o $(NAME)
+			@$(CC) $(CFLAGS) $(LIBFT) $(OBJ) -o $(NAME)
 			@echo "Compilation finished."
 
-$(FTPRINTF):
+$(LIBFT):
 			@echo "Making library libft."
-			@$(MAKE) --no-print-directory -C $(FTPRINTF_DIR)
+			@$(MAKE) --no-print-directory -C $(LIBFT_DIR)
 
 $(OBJ_DIR)%.o:		$(SRC_DIR)%.c $(HDR_DIR)$(HDR)
 			@mkdir -p $(dir $@)
@@ -50,13 +46,13 @@ $(OBJ_DIR)%.o:		$(SRC_DIR)%.c $(HDR_DIR)$(HDR)
 
 clean:
 			@echo "Removing object files"
-			@rm -f $(OBJ_DIR)*.o $(LIBFT_DIR)*.o $(FTPRINTF_DIR)/src/*.o
+			@rm -f $(OBJ_DIR)*.o $(LIBFT_DIR)*.o
 			@rmdir -p $(OBJ_DIR)
 
 fclean:
 			@$(MAKE) --no-print-directory clean
 			@echo "Removing excecutables"
-			@rm -f $(NAME) $(LIBFT) $(FTPRINTF)
+			@rm -f $(NAME) $(LIBFT)
 re:
 			@$(MAKE) --no-print-directory fclean
 			@$(MAKE) --no-print-directory all

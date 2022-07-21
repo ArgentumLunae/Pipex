@@ -6,12 +6,12 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/05/15 14:15:33 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/07/01 15:13:15 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/21 14:28:56 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdr/pipex.h"
-#include "../incl/ft_printf/src/ft_printf.h"
+#include "../incl/libft/libft.h"
 #include <unistd.h>
 
 void	free_twod(char **twod)

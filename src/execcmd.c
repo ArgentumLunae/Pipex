@@ -6,12 +6,12 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/04/15 17:18:37 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/07/21 12:54:01 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/21 14:28:28 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdr/pipex.h"
-#include "../incl/ft_printf/src/ft_printf.h"
+#include "../incl/libft/libft.h"
 #include <unistd.h>
 
 void	child(char *argv, int pin[2], int pout[2])
