@@ -6,7 +6,7 @@
 /*   By: mteerlin <mteerlin@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/05/26 15:10:06 by mteerlin      #+#    #+#                 */
-/*   Updated: 2022/07/14 11:35:48 by mteerlin      ########   odam.nl         */
+/*   Updated: 2022/07/29 15:12:27 by mteerlin      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ char	**get_dirs(char **env)
 		return (NULL);
 	tmp = ft_strdup(&(env[cnt][5]));
 	dirs = ft_split(tmp, ':');
+	free(tmp);
 	if (dirs == NULL)
 		return (NULL);
-	free(tmp);
 	cnt = 0;
 	slash_dirs(&dirs);
 	return (dirs);
